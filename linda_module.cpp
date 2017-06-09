@@ -19,9 +19,19 @@ public:
 	}
 };
 
+struct Element
+{
+	std::string type;
+	std::string oper;
+	std::string cond;
+
+	Element(std::string t, std::string o, std::string c) : type(t), oper(o), cond(c) {}
+};
+
 class TuplePattern
 {
-
+public:
+	std::list<Element> tuplePatternElements;
 };
 
 void output(Tuple tuple)
@@ -54,9 +64,9 @@ void output(Tuple tuple)
 		/* Try get int */
 		try 
 		{
-			std::cout << std::get<int>(element) << ", ";
+			std::cout << std::get<int>(element) << " ";
 			++typeOfElement;
-			file << std::get<int>(element) << ", ";
+			file << std::get<int>(element) << " ";
 
 		}
 		catch (const std::bad_variant_access&) 
@@ -64,15 +74,15 @@ void output(Tuple tuple)
 			/* Try get float */
 			try 
 			{
-				std::cout << std::get<float>(element) << ", ";
+				std::cout << std::get<float>(element) << " ";
 				++typeOfElement;
-				file << std::get<float>(element) << ", ";
+				file << std::get<float>(element) << " ";
 			}
 			catch (const std::bad_variant_access&) /* So it must be string */
 			{
-				std::cout << std::get<std::string>(element) << ", ";
+				std::cout << std::get<std::string>(element) << " ";
 				++typeOfElement;
-				file << std::get<std::string>(element) << ", ";
+				file << "\"" << std::get<std::string>(element) << "\" ";
 			}
 		}		
 	}
@@ -82,6 +92,62 @@ void output(Tuple tuple)
 	file << '\n';
 	
 	file.close();	
+}
+
+TuplePattern parse(std::string pattern)
+{
+	TuplePattern tuplePattern;
+
+	int i = 0;
+	
+	while(i < pattern.length())
+	{
+		std::string type;
+		while(pattern[i] != ':' && i < pattern.length())
+		{
+			type.push_back(pattern[i]);
+			++i;
+		}
+			
+		if(type != "integer" && type != "string" && type != "float")
+		{
+			std::cout << "Error in a tuple pattrern" << std::endl;
+		}
+
+		std::string oper;
+		while((pattern[i] == ':' || pattern[i] == '=' || pattern[i] == '<' || pattern[i] == '>') && i < pattern.length())
+		{
+			oper.push_back(pattern[i]);
+			++i;
+		}
+
+		std::string cond;
+		while(pattern[i] != ',' && i < pattern.length())
+		{
+			cond.push_back(pattern[i]);
+			++i;
+		}
+
+		/* Now comma and space */
+		i+=2;
+
+		Element element(type, oper, cond);
+		tuplePattern.tuplePatternElements.push_back(element);
+
+		std::cout << "Type: " << type << " Operator: " << oper << " Condition: " << cond << std::endl;
+	}
+
+	return tuplePattern;
+}
+
+void findTuple(TuplePattern tuplePattern)
+{
+	std::fstream file;
+	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out | std::ios::ate); 
+
+
+
+	file.close();
 }
 
 void input(TuplePattern tuplePattern, int timeout)
@@ -101,8 +167,10 @@ int main()
 	Tuple tuple;
 	output(tuple);
 
-	std::cout << "Press any key to continue..." << std::endl;
-	std::cin.get();
+	std::cout << std::endl;
+
+	parse("integer:1, string:*, float:>5.5, string:\"abc\"");
+
 
 	return 0;
 }

@@ -383,7 +383,7 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 }
 
 
-bool findTuple(Tuple& tuple, TuplePattern tuplePattern, unsigned long& lineNum)
+bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum)
 {
 	std::fstream file;
 	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out); 
@@ -449,6 +449,7 @@ bool findTuple(Tuple& tuple, TuplePattern tuplePattern, unsigned long& lineNum)
 			++i;
 		}
 		 
+		t = tuple;
 		tupleFinded = compareTupleWithTuplePattern(tuple, tuplePattern);
 		if(tupleFinded)
 		{
@@ -479,7 +480,13 @@ void read(TuplePattern tuplePattern, int timeout)
 
 	if(findTuple(tuple, tuplePattern, lineNum))
 	{
-		std::cout << "Number of line: " << lineNum << std::endl;
+		std::cout << std::endl;
+		for(std::variant<int, float, std::string> element : tuple.tupleElements)
+		{
+			std::cout << std::get<0>(element) << " ";
+		}
+
+		std::cout << std::endl << "Number of line: " << lineNum << std::endl;
 	}
 }
 

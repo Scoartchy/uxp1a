@@ -161,7 +161,7 @@ TuplePattern parsePattern(std::string pattern)
 }
 
 
-bool compareTupleWithTuplePattern(Tuple tuple, TuplePattern tuplePattern)
+bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 {
 	if(tuple.tupleElements.size() != tuplePattern.tuplePatternElements.size())
 	{
@@ -383,18 +383,18 @@ bool compareTupleWithTuplePattern(Tuple tuple, TuplePattern tuplePattern)
 }
 
 
-void findTuple(TuplePattern tuplePattern)
+bool findTuple(Tuple& tuple, TuplePattern tuplePattern, unsigned long& lineNum)
 {
 	std::fstream file;
 	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out); 
 	openFileInfo(file);	
 
-	Tuple tuple;
 	bool tupleFinded = false;
 
 	std::string line;
 	while(getline(file, line).good()) /* Read file line by line */
 	{
+		++lineNum;
 		std::cout << "Line: " << line << std::endl;
 
 		int i = 0;
@@ -422,6 +422,7 @@ void findTuple(TuplePattern tuplePattern)
 				
 				++i;
 			}
+
 			std::cout << "Tuple element: " << tupleElement << std::endl;
 
 			try 
@@ -452,14 +453,16 @@ void findTuple(TuplePattern tuplePattern)
 		if(tupleFinded)
 		{
 			std::cout << "Tuple was found!" << std::endl;
-			break;
+			file.close();
+			return true;
 		}
 		else
-			std::cout << "Tuple was nod found!" << std::endl;
+			std::cout << "Tuple was not found!" << std::endl;
 	}
 
 
 	file.close();
+	return false;
 }
 
 
@@ -471,7 +474,13 @@ void input(TuplePattern tuplePattern, int timeout)
 
 void read(TuplePattern tuplePattern, int timeout)
 {
+	unsigned long lineNum = 0;
+	Tuple tuple;
 
+	if(findTuple(tuple, tuplePattern, lineNum))
+	{
+		std::cout << "Number of line: " << lineNum << std::endl;
+	}
 }
 
 
@@ -487,12 +496,12 @@ int main()
 	//Test parse function
 	//TuplePattern tuplePattern = parsePattern("integer:*, float:>5.5, string:\"abc\""); /*std::string:*,*/
 
-	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, integer:<3");
+	TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, integer:<3");
 
-	TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, float:<3, float:<=100.5");
+	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, float:<3, float:<=100.5");
 
 	std::cout << std::endl;
-	findTuple(tuplePattern);
+	read(tuplePattern, 3);
 
 	return 0;
 }

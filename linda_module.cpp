@@ -372,10 +372,43 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 			
 			return false;
 		}
-		/*else if(typeOfElement == stringType && (*iterator).type == "string")
+		else if(typeOfElement == stringType && (*iterator).type == "string")
 		{
-			
-		}*/
+			std::string operat = (*iterator).oper;
+			const char * tupleString = std::get<std::string>(element).c_str();
+			const char * patternString = (*iterator).cond.c_str();
+			//std::cout << "Moj test: \n";
+			//std::cout << "+++" << tupleString << "+++\n";
+			//std::cout << "+++" << patternString << "+++\n";
+			if (strcmp(patternString,"*") == 0) {
+			}
+			else if (operat == ":") {
+				if (!(strcmp(tupleString, patternString) == 0)) {
+					return false;
+				}
+			}
+			else if (operat == ":<") {
+				if (!(strcmp(tupleString, patternString) < 0)) {
+					return false;
+				}
+			}
+			else if (operat == ":>") {
+				if (!(strcmp(tupleString, patternString) < 0)) {
+					return false;
+				}
+			}
+			else if (operat == ":<=") {
+				if (!(strcmp(tupleString, patternString) <= 0)) {
+					return false;
+				}
+			}
+			else if (operat == ":>=") {
+				if (!(strcmp(tupleString, patternString) >= 0)) {
+					return false;
+				}
+			}
+			++iterator;
+		}
 		
 	}
 

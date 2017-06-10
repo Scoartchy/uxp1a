@@ -4,7 +4,7 @@
 #include <list>
 #include <variant>
 #include <typeinfo>
-
+#include <cstring>
 
 
 const std::string LINDA_FILE = "test.txt";  /* change to -> "/working_dir/linda_file";*/

@@ -1,4 +1,5 @@
 #include <sys/stat.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -9,19 +10,74 @@
 #define MAIN_FIFO "./working_dir/main.fifo"
 #define SECONDARY_FIFO "./working_dir/secondary.fifo"
 #define LINDA_FILE "./working_dir/linda_file"
+#define NO_TRAFFIC_TIMEOUT 5
+
+struct mutex_data{
+	bool spawn_main_writer;
+	pthread_mutex_t lock;
+};
+
 void *write_main(void *void_ptr){	
 	int fifo = open(MAIN_FIFO, O_WRONLY);
 	write(fifo, "a", 2);
 }
+void write_secondary(void *void_ptr){
+	int fifo = open(SECONDARY_FIFO, O_WRONLY);
+	write(fifo, "a", 2);
+}
+
+void *no_traffic_timeout(void *void_ptr){
+	char buf[2];
+	sleep(NO_TRAFFIC_TIMEOUT);
+	printf("No traffic, terminating linda\n");
+	fflush(stdout);
+	int fifo = open(SECONDARY_FIFO, O_RDONLY);
+	read(fifo, &buf, sizeof(char)*2);
+}
+
+void *read_secondary(void *void_ptr){
+	struct mutex_data *data;
+	data = (struct mutex_data *) void_ptr;
+	char buf[2];
+	int fifo = open(SECONDARY_FIFO, O_RDONLY);
+	while(true){
+		read(fifo, &buf, sizeof(char)*2);
+		pthread_mutex_lock(&(data->lock));
+		data->spawn_main_writer = true;
+		pthread_mutex_unlock(&(data->lock));
+	}
+}
+
+void *secondary_manager(void *void_ptr){
+	mutex_data data;
+	if (pthread_mutex_init(&(data.lock), NULL) != 0)
+	{
+	    printf("\n mutex init failed\n");
+	    return NULL;
+	}
+	pthread_t read_secondary_thread;
+	pthread_t write_main_thread;	
+	pthread_create(&read_secondary_thread, NULL, read_secondary, (void*) &data);
+	while(true){
+		pthread_mutex_lock(&(data.lock));
+		if(data.spawn_main_writer){
+			pthread_create(&write_main_thread, NULL, write_main, NULL);
+			data.spawn_main_writer = false;
+		}
+		pthread_mutex_unlock(&(data.lock));
+		sleep(1);
+	}
+}
+
 int init_linda(){
 	//Stworz/sprawdz czy istnieje plik FLAG, ten kto go stworzy inicjuje kolejki i pisze do main_fifo
 	int fd = open(FLAG, O_CREAT | O_EXCL | O_WRONLY, "w");
+	pthread_t secondary_manager_thread;	
 	if (fd == -1) {
 		printf("nie jestesmy pierwsi\n");
 		//TODO zamiast sleep zrobic dopoki nie istnieje
 		sleep(1);
-		//TODO inicjalizacja nie pierwszego procesu:
-		//TODO czyta secondary fifo
+		pthread_create(&secondary_manager_thread, NULL, secondary_manager, NULL);
 		return 1;
 	}
 	printf("jestesmy pierwsi\n");
@@ -31,11 +87,12 @@ int init_linda(){
 	int file = open(LINDA_FILE, O_CREAT);
 	close(file);
 	close(fd);
-	//TODO stworz watek czytający z secondary fifo
 	//
 	//TODO zakladamy ze sie udalo stworzyc thread, nie ma czasu na glupoty
 	pthread_t write_main_thread;	
 	pthread_create(&write_main_thread, NULL, write_main, NULL);
+	pthread_create(&secondary_manager_thread, NULL, secondary_manager, NULL);
+	printf("sec_man_thr: %i\n", secondary_manager_thread);
 	return 0;
 }
 
@@ -49,22 +106,13 @@ void give_file_access(){
 	//TODO zakladamy ze sie udalo
 	pthread_create(&write_main_thread, NULL, write_main, NULL);
 }
-//void output(krotka){
-//}
-//void input(wzorzec krotki, timeout){
-//}
-//void read(wzorzec krotki, timeout){
-//}
-
-
-int main(){
-	init_linda();
-	while(true){
-		get_file_access();
-		printf("1\n");
-		fflush(stdout);
-		sleep(1);
-		give_file_access();
-	}
-	return 0;
+void exit_linda(){
+	//TODO troche nie dziala :P
+	get_file_access();
+	if(fork()) exit(0);
+	pthread_t no_traffic_timeout_thread;	
+	pthread_create(&no_traffic_timeout_thread, NULL, no_traffic_timeout, NULL);
+	write_secondary(NULL);
+	if(fork()) exit(0);
 }
+

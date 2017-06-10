@@ -169,15 +169,15 @@ bool compareTupleWithTuplePattern(Tuple tuple, TuplePattern tuplePattern)
 	for(std::variant<int, float, std::string> element : tuple.tupleElements)
 	{
 		std::cout << (*iterator).type << " ";
-		if((typeid(element).name()) == "int" && *iterator.type == "integer")
+		if((typeid(element).name()) == "int" && (*iterator).type == "integer")
 		{
 			
 		}
-		else if((typeid(element).name()) == *iterator.type)
+		else if((typeid(element).name()) == (*iterator).type)
 		{
 			
 		}
-		else if((typeid(element).name()) == "std::string" && *iterator.type == "string")
+		else if((typeid(element).name()) == "std::string" && (*iterator).type == "string")
 		{
 			
 		}

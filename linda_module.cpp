@@ -10,6 +10,12 @@
 const std::string LINDA_FILE = "test.txt";  /* change to -> "/working_dir/linda_file";*/
 
 
+enum TypeOfElement
+{
+	intType, floatType, stringType
+};
+
+
 
 /* Classes */
 
@@ -70,7 +76,7 @@ void output(Tuple tuple)
 
 	short int typeOfElement = 0;
 
-	/* Getting tuples from list of tuples */
+	/* Adding tuple to list of tuples */
 	for(std::variant<int, float, std::string> element : tuple.tupleElements)
 	{
 		/* Try get int */
@@ -108,7 +114,7 @@ void output(Tuple tuple)
 }
 
 
-TuplePattern parse(std::string pattern)
+TuplePattern parsePattern(std::string pattern)
 {
 	TuplePattern tuplePattern;
 
@@ -157,39 +163,223 @@ TuplePattern parse(std::string pattern)
 
 bool compareTupleWithTuplePattern(Tuple tuple, TuplePattern tuplePattern)
 {
-	//std::cout << tuple.tupleElements.size() << " " << tuplePattern.tuplePatternElements.size();
-
 	if(tuple.tupleElements.size() != tuplePattern.tuplePatternElements.size())
 	{
 		return false;
 	}
 
 	std::list<Element>::const_iterator iterator = tuplePattern.tuplePatternElements.begin();
-	
+	int firstNumber, secondNumber;
+
 	for(std::variant<int, float, std::string> element : tuple.tupleElements)
-	{
-		std::cout << (*iterator).type << " ";
-		if((typeid(element).name()) == "int" && *iterator.type == "integer")
+	{	
+		TypeOfElement typeOfElement;
+
+		try 
 		{
-			
+			int i = std::get<int>(element);
+			typeOfElement = intType;
+			std::cout << "Int: " << std::get<int>(element) << std::endl;
 		}
-		else if((typeid(element).name()) == *iterator.type)
+		catch (const std::bad_variant_access&) 
 		{
-			
+			try 
+			{
+				float f = std::get<float>(element);
+				typeOfElement = floatType;
+				std::cout << "Float: " << std::get<float>(element) << std::endl;
+			}
+			catch (const std::bad_variant_access&)
+			{
+				std::string s = std::get<std::string>(element);
+				typeOfElement = stringType;
+				std::cout << "String: " << std::get<std::string>(element) << std::endl;
+			}
 		}
-		else if((typeid(element).name()) == "std::string" && *iterator.type == "string")
+
+		std::cout << "Type: " << (*iterator).type << std::endl;
+		if(typeOfElement == intType && (*iterator).type == "integer")
 		{
+			std::cout << "Oper: " << (*iterator).oper << std::endl;
+			if((*iterator).oper == ":")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+				}	continue;
+				
+				firstNumber = std::get<int>(element);
+				secondNumber = std::stoi((*iterator).cond);
+
+				if(firstNumber == secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			}
+			else if((*iterator).oper == ":<")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+					continue;
+				}
+
+				firstNumber = std::get<int>(element);
+				secondNumber = std::stoi((*iterator).cond);
+
+				if(firstNumber < secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			} 
+			else if((*iterator).oper == ":<=")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+					continue;
+				}
+				
+				firstNumber = std::get<int>(element);
+				secondNumber = std::stoi((*iterator).cond);
+
+				if(firstNumber <= secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			}
+			else if((*iterator).oper == ":>")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+					continue;
+				}
+				
+				firstNumber = std::get<int>(element);
+				secondNumber = std::stoi((*iterator).cond);
+
+				if(firstNumber > secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			}
+			else if((*iterator).oper == ":>=")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+					continue;
+				}
+				
+				firstNumber = std::get<int>(element);
+				secondNumber = std::stoi((*iterator).cond);
+
+				if(firstNumber >= secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			}
 			
-		}
-		else
-		{
 			return false;
 		}
+		else if(typeOfElement == floatType && (*iterator).type == "float")
+		{
+			std::cout << "Oper: " << (*iterator).oper << std::endl;
+			
+			if((*iterator).oper == ":<")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+					continue;
+				}
+
+				firstNumber = std::get<float>(element);
+				secondNumber = std::stof((*iterator).cond);
+
+				if(firstNumber < secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			} 
+			else if((*iterator).oper == ":<=")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+					continue;
+				}
+				
+				firstNumber = std::get<float>(element);
+				secondNumber = std::stof((*iterator).cond);
+
+				if(firstNumber <= secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			}
+			else if((*iterator).oper == ":>")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+					continue;
+				}
+				
+				firstNumber = std::get<float>(element);
+				secondNumber = std::stof((*iterator).cond);
+
+				if(firstNumber > secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			}
+			else if((*iterator).oper == ":>=")
+			{
+				std::cout << "Cond: " << (*iterator).cond << std::endl;
+				if((*iterator).cond == "*")
+				{
+					++iterator;
+					continue;
+				}
+				
+				firstNumber = std::get<float>(element);
+				secondNumber = std::stof((*iterator).cond);
+
+				if(firstNumber >= secondNumber)
+				{
+					++iterator;
+					continue;
+				}
+			}
+			
+			return false;
+		}
+		/*else if(typeOfElement == stringType && (*iterator).type == "string")
+		{
+			
+		}*/
 		
-		++iterator;
 	}
 
-
+	return true;
 }
 
 
@@ -200,6 +390,7 @@ void findTuple(TuplePattern tuplePattern)
 	openFileInfo(file);	
 
 	Tuple tuple;
+	bool tupleFinded = false;
 
 	std::string line;
 	while(getline(file, line).good()) /* Read file line by line */
@@ -256,8 +447,15 @@ void findTuple(TuplePattern tuplePattern)
 			tupleElement.clear();
 			++i;
 		}
-		bool b = compareTupleWithTuplePattern(tuple, tuplePattern);
-		
+		 
+		tupleFinded = compareTupleWithTuplePattern(tuple, tuplePattern);
+		if(tupleFinded)
+		{
+			std::cout << "Tuple was found!" << std::endl;
+			break;
+		}
+		else
+			std::cout << "Tuple was nod found!" << std::endl;
 	}
 
 
@@ -287,7 +485,11 @@ int main()
 	std::cout << std::endl;
 
 	//Test parse function
-	TuplePattern tuplePattern = parse("integer:1, float:>5.5, string:\"abc\""); /*std::string:*,*/
+	//TuplePattern tuplePattern = parsePattern("integer:*, float:>5.5, string:\"abc\""); /*std::string:*,*/
+
+	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, integer:<3");
+
+	TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, float:<3, float:<=100.5");
 
 	std::cout << std::endl;
 	findTuple(tuplePattern);

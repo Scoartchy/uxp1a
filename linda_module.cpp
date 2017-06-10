@@ -142,10 +142,18 @@ TuplePattern parsePattern(std::string pattern)
 		}
 
 		std::string cond;
+		if (pattern[i] == '"') 
+		{
+			++i;
+		}
 		while(pattern[i] != ',' && i < pattern.length())
 		{
 			cond.push_back(pattern[i]);
 			++i;
+		}
+		if(cond[cond.length() - 1] == '"') 
+		{
+			cond = cond.substr(0, cond.length() - 1);
 		}
 
 		/* Now comma and space */
@@ -377,33 +385,43 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 			std::string operat = (*iterator).oper;
 			const char * tupleString = std::get<std::string>(element).c_str();
 			const char * patternString = (*iterator).cond.c_str();
-			//std::cout << "Moj test: \n";
-			//std::cout << "+++" << tupleString << "+++\n";
-			//std::cout << "+++" << patternString << "+++\n";
-			if (strcmp(patternString,"*") == 0) {
+			std::cout << "Moj test: \n";
+			std::cout << "+++" << tupleString << "+++\n";
+			std::cout << "+++" << patternString << "+++\n";
+			if (strcmp(patternString,"*") == 0) 
+			{
 			}
-			else if (operat == ":") {
-				if (!(strcmp(tupleString, patternString) == 0)) {
+			else if (operat == ":") 
+			{
+				if (!(strcmp(tupleString, patternString) == 0)) 
+				{
 					return false;
 				}
 			}
-			else if (operat == ":<") {
-				if (!(strcmp(tupleString, patternString) < 0)) {
+			else if (operat == ":<") 
+			{
+				if (!(strcmp(tupleString, patternString) < 0)) 
+				{
 					return false;
 				}
 			}
-			else if (operat == ":>") {
-				if (!(strcmp(tupleString, patternString) < 0)) {
+			else if (operat == ":>") 
+			{
+				if (!(strcmp(tupleString, patternString) < 0)) 
+				{
 					return false;
 				}
 			}
-			else if (operat == ":<=") {
-				if (!(strcmp(tupleString, patternString) <= 0)) {
+			else if (operat == ":<=") 
+			{
+				if (!(strcmp(tupleString, patternString) <= 0)) 
+				{
 					return false;
 				}
 			}
 			else if (operat == ":>=") {
-				if (!(strcmp(tupleString, patternString) >= 0)) {
+				if (!(strcmp(tupleString, patternString) >= 0)) 
+				{
 					return false;
 				}
 			}
@@ -536,7 +554,8 @@ int main()
 	//Test parse function
 	//TuplePattern tuplePattern = parsePattern("integer:*, float:>5.5, string:\"abc\""); /*std::string:*,*/
 
-	TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, integer:<3");
+	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, integer:<3");
+	TuplePattern tuplePattern = parsePattern("string:<\"A\"");
 
 	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, float:<3, float:<=100.5");
 

@@ -49,18 +49,18 @@ public:
 
 
 
-void openFileInfo(std::fstream &file)
+void openFileInfo(std::fstream &file, const std::string fileName)
 {	
 	if(file.bad())
 	{
-		std::cout << "ERROR: The file " << LINDA_FILE.c_str() << " could not be found. Program will be terminated." << std::endl;
+		std::cout << "ERROR: The file " << fileName.c_str() << " could not be found. Program will be terminated." << std::endl;
 		std::cout << "Press any key to continue..." << std::endl;
 		std::cin.get();
 		exit(1);
 	}
 	else
 	{
-		std::cout << "The file " << LINDA_FILE.c_str() << " found and opened." << std::endl;
+		std::cout << "The file " << fileName.c_str() << " found and opened." << std::endl;
 	}
 }
 
@@ -73,7 +73,7 @@ void output(Tuple tuple)
 
 	std::fstream file;
 	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out | std::ios::ate); 
-	openFileInfo(file);	
+	openFileInfo(file, LINDA_FILE);	
 
 	short int typeOfElement = 0;
 
@@ -439,7 +439,7 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 {
 	std::fstream file;
 	file.open(LINDA_FILE.c_str(), std::ios::in); 
-	openFileInfo(file);
+	openFileInfo(file, LINDA_FILE);
 
 	std::fstream tempFile; 		/* I have to declare it here, so it will be visible out of the scope. */
 	bool tupleForInputAlreadyFound = false; 	/* I need to know if tuple was found, so I return true after rewriting whole file. */
@@ -447,7 +447,7 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 	{
 		/* Create temporary file in case we need to remove line, so we can swap it later with the original one. */
 		tempFile.open(TEMP_FILE.c_str(), std::ios::out);
-		openFileInfo(tempFile);
+		openFileInfo(tempFile, TEMP_FILE);
 	}
 
 	bool tupleFinded = false;
@@ -455,7 +455,10 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 	std::string line;
 	while(getline(file, line).good()) /* Read file line by line */
 	{
-		++lineNum;
+		if (!tupleForInputAlreadyFound) /* In case it's runned by "input" function, we must stop incrementing line's number after foudning tuple. */
+		{
+			++lineNum;
+		}
 		std::cout << "Line: " << line << std::endl;
 
 		int i = 0;
@@ -511,9 +514,12 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 		}
 		 
 		t = tuple;
-		tupleFinded = compareTupleWithTuplePattern(tuple, tuplePattern);
+		if (!tupleForInputAlreadyFound) /* We already found pattern - no need for further check. */
+		{
+			tupleFinded = compareTupleWithTuplePattern(tuple, tuplePattern);
+		}
 
-		if(tupleFinded && !tupleForInputAlreadyFound)
+		if(tupleFinded && !tupleForInputAlreadyFound) /* Second condition is neccessary, so we stop getting tuples, after finding first matching one. */
 		{
 			std::cout << "Tuple was found!" << std::endl;
 			if (!deleteAfterFind)
@@ -523,13 +529,13 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 			}
 			else
 			{
-				tupleForInputAlreadyFound = true;
+				tupleForInputAlreadyFound = true; /* We need still to read rest of the lines from file to temp file, so we cannot just return here. */
 			}
 		}
 		else
 		{
 			std::cout << "Tuple was not found!" << std::endl;
-			if (deleteAfterFind) 
+			if (deleteAfterFind) /* We must update tempFile for input operation. */
 			{
 				tempFile << line << '\n';
 			}
@@ -565,7 +571,19 @@ void getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperati
 		std::cout << std::endl;
 		for(std::variant<int, float, std::string> element : tuple.tupleElements)
 		{
-			std::cout << std::get<0>(element) << " ";
+			/* Check the type of variant variable. */
+			if (std::holds_alternative<int>(element))
+			{
+				std::cout << std::get<int>(element) << " ";
+			}
+			else if (std::holds_alternative<float>(element))
+			{
+				std::cout << std::get<float>(element) << " ";
+			}
+			else if (std::holds_alternative<std::string>(element))
+			{
+				std::cout << std::get<std::string>(element) << " ";
+			}
 		}
 
 		std::cout << std::endl << "Number of line: " << lineNum << std::endl;
@@ -597,9 +615,9 @@ int main()
 	//TuplePattern tuplePattern = parsePattern("integer:*, float:>5.5, string:\"abc\""); /*std::string:*,*/
 
 	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, integer:<3");
-	TuplePattern tuplePattern = parsePattern("string:<=\"EZTI\"");
 
 	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, float:<3, float:<=100.5");
+	TuplePattern tuplePattern = parsePattern("string:<=\"EZTI\"");
 
 	std::cout << std::endl;
 	input(tuplePattern, 3);

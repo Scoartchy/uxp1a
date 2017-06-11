@@ -8,6 +8,7 @@
 
 
 const std::string LINDA_FILE = "test.txt";  /* change to -> "/working_dir/linda_file";*/
+const std::string TEMP_FILE = "temp.txt";   /* similarily as above... */
 
 
 enum TypeOfElement
@@ -407,7 +408,7 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 			}
 			else if (operat == ":>") 
 			{
-				if (!(strcmp(tupleString, patternString) < 0)) 
+				if (!(strcmp(tupleString, patternString) > 0)) 
 				{
 					return false;
 				}
@@ -434,11 +435,20 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 }
 
 
-bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum)
+bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool deleteAfterFind)
 {
 	std::fstream file;
-	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out); 
-	openFileInfo(file);	
+	file.open(LINDA_FILE.c_str(), std::ios::in); 
+	openFileInfo(file);
+
+	std::fstream tempFile; 		/* I have to declare it here, so it will be visible out of the scope. */
+	bool tupleForInputAlreadyFound = false; 	/* I need to know if tuple was found, so I return true after rewriting whole file. */
+	if (deleteAfterFind)
+	{
+		/* Create temporary file in case we need to remove line, so we can swap it later with the original one. */
+		tempFile.open(TEMP_FILE.c_str(), std::ios::out);
+		openFileInfo(tempFile);
+	}
 
 	bool tupleFinded = false;
 
@@ -502,34 +512,55 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum)
 		 
 		t = tuple;
 		tupleFinded = compareTupleWithTuplePattern(tuple, tuplePattern);
-		if(tupleFinded)
+
+		if(tupleFinded && !tupleForInputAlreadyFound)
 		{
 			std::cout << "Tuple was found!" << std::endl;
-			file.close();
-			return true;
+			if (!deleteAfterFind)
+			{
+				file.close();
+				return true;
+			}
+			else
+			{
+				tupleForInputAlreadyFound = true;
+			}
 		}
 		else
+		{
 			std::cout << "Tuple was not found!" << std::endl;
+			if (deleteAfterFind) 
+			{
+				tempFile << line << '\n';
+			}
+		}
 	}
 
 
 	file.close();
+	if (deleteAfterFind) 
+	{	
+		tempFile.close();
+		if (tupleForInputAlreadyFound)
+		{
+			remove(LINDA_FILE.c_str());
+			rename(TEMP_FILE.c_str(), LINDA_FILE.c_str());
+			return true;
+		}
+		else
+		{
+			remove(TEMP_FILE.c_str());
+		}
+	}
 	return false;
 }
 
-
-void input(TuplePattern tuplePattern, int timeout)
-{
-
-}
-
-
-void read(TuplePattern tuplePattern, int timeout)
+void getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperation)
 {
 	unsigned long lineNum = 0;
 	Tuple tuple;
 
-	if(findTuple(tuple, tuplePattern, lineNum))
+	if(findTuple(tuple, tuplePattern, lineNum, isInputOperation))
 	{
 		std::cout << std::endl;
 		for(std::variant<int, float, std::string> element : tuple.tupleElements)
@@ -539,6 +570,17 @@ void read(TuplePattern tuplePattern, int timeout)
 
 		std::cout << std::endl << "Number of line: " << lineNum << std::endl;
 	}
+}
+
+void input(TuplePattern tuplePattern, int timeout)
+{
+	getDataFromFile(tuplePattern, timeout, true);
+}
+
+
+void read(TuplePattern tuplePattern, int timeout)
+{
+	getDataFromFile(tuplePattern, timeout, false);
 }
 
 
@@ -555,12 +597,12 @@ int main()
 	//TuplePattern tuplePattern = parsePattern("integer:*, float:>5.5, string:\"abc\""); /*std::string:*,*/
 
 	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, integer:<3");
-	TuplePattern tuplePattern = parsePattern("string:<\"A\"");
+	TuplePattern tuplePattern = parsePattern("string:<=\"EZTI\"");
 
 	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, float:<3, float:<=100.5");
 
 	std::cout << std::endl;
-	read(tuplePattern, 3);
+	input(tuplePattern, 3);
 
 	return 0;
 }

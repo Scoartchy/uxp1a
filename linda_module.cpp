@@ -7,10 +7,11 @@
 #include <cstring>
 #include <ctime>
 #include <chrono>
+#include <exception>
 #include "sync.h"
 
-const std::string LINDA_FILE = "test.txt";  /* change to -> "/working_dir/linda_file";*/
-const std::string TEMP_FILE = "temp.txt";   /* similarily as above... */
+const std::string LINDA_FILE = "./working_dir/linda_file";  /* change to -> "/working_dir/linda_file";*/
+const std::string TEMP_FILE = "./working_dir/temp_linda_file";   /* similarily as above... */
 
 
 enum TypeOfElement
@@ -106,10 +107,37 @@ void output(Tuple tuple)
 	give_file_access();
 }
 
-
-Tuple parseTuple(std::string line)
+std::string tupleToString(Tuple tuple)
 {
+	std::string tupleString;
 
+	/* Adding tuple to list of tuples */
+	for(std::variant<int, float, std::string> element : tuple.tupleElements)
+	{
+		/* Check the type of variant variable. */
+		if (std::holds_alternative<int>(element))
+		{
+		 	tupleString += (std::to_string(std::get<int>(element)) + " ");
+		}
+		else if (std::holds_alternative<float>(element))
+		{
+			tupleString += (std::to_string(std::get<float>(element)) + " ");
+		}
+		else if (std::holds_alternative<std::string>(element))
+		{
+			tupleString += ("\"" + std::get<std::string>(element) + "\" ");
+		}
+	}
+
+	tupleString.pop_back();
+
+	std::cout << "Tuple: " << tupleString << std::endl; 
+
+	return tupleString;
+}
+
+Tuple stringToTuple(std::string line)
+{
 	int i = 0;
 	bool isInString = false;
 
@@ -143,15 +171,20 @@ Tuple parseTuple(std::string line)
 
 		try 
 		{
-			float f = stof(tupleElement);
-			tuple.tupleElements.push_back(f);
+			if(tupleElement.find('.'))
+			{
+				throw std::exception();
+			}
+			std::cout<<"i";
+			int i = stoi(tupleElement);
+			tuple.tupleElements.push_back(i);
 		}
 		catch (std::exception& e)
 		{
 			try 
 			{
-				int i = stoi(tupleElement);
-				tuple.tupleElements.push_back(i);
+				float f = stof(tupleElement);
+				tuple.tupleElements.push_back(f);
 			}
 			catch (std::exception e)
 			{
@@ -171,7 +204,7 @@ Tuple parseTuple(std::string line)
 }
 
 
-TuplePattern parsePattern(std::string pattern)
+TuplePattern strintToTuplePattern(std::string pattern)
 {
 	TuplePattern tuplePattern;
 
@@ -515,7 +548,7 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 		}
 		std::cout << "Line: " << line << std::endl;
 		 
-		Tuple tuple = parseTuple(line);
+		Tuple tuple = stringToTuple(line);
 		t = tuple;
 		if (!tupleForInputAlreadyFound) /* We already found pattern - no need for further check. */
 		{
@@ -635,21 +668,22 @@ int main()
 
 	std::string test = "13 0.7 \"EITI\" ";
 	
-	Tuple tuple = parseTuple(test);
+	Tuple tuple = stringToTuple(test);
 	output(tuple);
+	tupleToString(tuple);
 
 	std::cout << std::endl;
 
 	//Test parse function
-	//TuplePattern tuplePattern = parsePattern("integer:*, float:>5.5, string:\"abc\""); /*std::string:*,*/
+	//TuplePattern tuplePattern = strintToTuplePattern("integer:*, float:>5.5, string:\"abc\""); /*std::string:*,*/
 
-	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, integer:<3");
+	//TuplePattern tuplePattern = strintToTuplePattern("integer:*, integer:>5, integer:<3");
 
-	//TuplePattern tuplePattern = parsePattern("integer:*, integer:>5, float:<3, float:<=100.5");
-	TuplePattern tuplePattern = parsePattern("string:<=\"EZTI\"");
+	//TuplePattern tuplePattern = strintToTuplePattern("integer:*, integer:>5, float:<3, float:<=100.5");
+	//TuplePattern tuplePattern = strintToTuplePattern("string:<=\"EZTI\"");
 
-	std::cout << std::endl;
-	input(tuplePattern, 3);
+	//std::cout << std::endl;
+	//tuple = input(tuplePattern, 3);
 
 	return 0;
 }

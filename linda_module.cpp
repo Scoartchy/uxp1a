@@ -67,46 +67,6 @@ void openFileInfo(std::fstream &file, const std::string fileName)
 	}
 }
 
-
-void output(Tuple tuple)
-{
-	get_file_access();
-
-	std::fstream file;
-	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out | std::ios::ate); 
-	openFileInfo(file, LINDA_FILE);	
-
-	/* Adding tuple to list of tuples */
-	for(std::variant<int, float, std::string> element : tuple.tupleElements)
-	{
-		/* Check the type of variant variable. */
-		if (std::holds_alternative<int>(element))
-		{
-			std::cout << std::get<int>(element) << " ";
-		 	file << std::get<int>(element) << " ";
-		}
-		else if (std::holds_alternative<float>(element))
-		{
-			std::cout << std::get<float>(element) << " ";
-			file << std::get<float>(element) << " ";
-		}
-		else if (std::holds_alternative<std::string>(element))
-		{
-			std::cout << std::get<std::string>(element) << " ";
-	 		file << "\"" << std::get<std::string>(element) << "\" ";
-		}	
-	}
-
-	std::cout << "Tuple was added to LINDA_FILE." << std::endl;
-
-	/* Go to new line */
-	file << '\n';
-	
-	file.close();	
-
-	give_file_access();
-}
-
 std::string tupleToString(Tuple tuple)
 {
 	std::string tupleString;
@@ -200,6 +160,48 @@ Tuple stringToTuple(std::string line)
 	}
 
 	return tuple;
+}
+
+
+void output(const char* tupleString)
+{
+	get_file_access();
+
+	Tuple tuple = stringToTuple(std::string(tupleString));
+
+	std::fstream file;
+	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out | std::ios::ate); 
+	openFileInfo(file, LINDA_FILE);	
+
+	/* Adding tuple to list of tuples */
+	for(std::variant<int, float, std::string> element : tuple.tupleElements)
+	{
+		/* Check the type of variant variable. */
+		if (std::holds_alternative<int>(element))
+		{
+			std::cout << std::get<int>(element) << " ";
+		 	file << std::get<int>(element) << " ";
+		}
+		else if (std::holds_alternative<float>(element))
+		{
+			std::cout << std::get<float>(element) << " ";
+			file << std::get<float>(element) << " ";
+		}
+		else if (std::holds_alternative<std::string>(element))
+		{
+			std::cout << std::get<std::string>(element) << " ";
+	 		file << "\"" << std::get<std::string>(element) << "\" ";
+		}	
+	}
+
+	std::cout << "Tuple was added to LINDA_FILE." << std::endl;
+
+	/* Go to new line */
+	file << '\n';
+	
+	file.close();	
+
+	give_file_access();
 }
 
 
@@ -672,8 +674,8 @@ int main()
 	std::string test = "13 0.7 \"EITI\" ";
 	
 	Tuple tuple = stringToTuple(test);
-	output(tuple);
-	tupleToString(tuple);
+	//output(tuple);
+	//tupleToString(tuple);
 
 	std::cout << std::endl;
 

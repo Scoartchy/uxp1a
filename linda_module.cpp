@@ -688,3 +688,10 @@ int main()
 
 	return 0;
 }
+
+void init_linda(){
+	_init_linda();
+}
+void exit_linda(){
+	_exit_linda();
+}

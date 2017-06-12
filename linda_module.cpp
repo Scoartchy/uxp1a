@@ -649,15 +649,19 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 	return tuple;
 }
 
-Tuple input(TuplePattern tuplePattern, int timeout)
+const char* input(const char* tuplePatternString, int timeout)
 {
-	return waitingForAction(tuplePattern, timeout, true);
+	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
+	Tuple tuple = waitingForAction(tuplePattern, timeout, true);
+	return tupleToString(tuple).c_str();
 }
 
 
-Tuple read(TuplePattern tuplePattern, int timeout)
+const char* read(const char* tuplePatternString, int timeout)
 {
-	return waitingForAction(tuplePattern, timeout, true);
+	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
+	Tuple tuple = waitingForAction(tuplePattern, timeout, false);
+	return tupleToString(tuple).c_str();
 }
 
 

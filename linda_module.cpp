@@ -143,7 +143,7 @@ Tuple stringToTuple(std::string line)
 
 	Tuple tuple;
 	std::string tupleElement;
-		
+
 	while(i < line.size())
 	{
 		while(isInString || line[i] != ' ')
@@ -167,15 +167,14 @@ Tuple stringToTuple(std::string line)
 				break;
 		}
 
-		std::cout << "Tuple element: " << tupleElement << std::endl;
+		std::cout << "Tupl element: " << tupleElement;
 
 		try 
-		{
-			if(tupleElement.find('.'))
+		{	
+			if(tupleElement.find(".") != std::string::npos)
 			{
 				throw std::exception();
 			}
-			std::cout<<"i";
 			int i = stoi(tupleElement);
 			tuple.tupleElements.push_back(i);
 		}
@@ -191,7 +190,7 @@ Tuple stringToTuple(std::string line)
 				tuple.tupleElements.push_back(tupleElement);
 			}
 		}
-
+		std::cout << std::endl;
 		tupleElement.clear();	
 
 		if(i < line.size())	

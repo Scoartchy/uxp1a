@@ -5,7 +5,8 @@
 #include <variant>
 #include <typeinfo>
 #include <cstring>
-
+#include <ctime>
+#include <chrono>
 
 const std::string LINDA_FILE = "test.txt";  /* change to -> "/working_dir/linda_file";*/
 const std::string TEMP_FILE = "temp.txt";   /* similarily as above... */
@@ -110,7 +111,7 @@ Tuple parseTuple(std::string line)
 	Tuple tuple;
 	std::string tupleElement;
 		
-	while(i < line.length())
+	while(i < line.size())
 	{
 		while(isInString || line[i] != ' ')
 		{
@@ -127,7 +128,7 @@ Tuple parseTuple(std::string line)
 			if(line[i] != '"')
 				tupleElement.push_back(line[i]);
 				
-			if(i < line.length())
+			if(i < line.size())
 				++i;
 			else 
 				break;
@@ -155,7 +156,7 @@ Tuple parseTuple(std::string line)
 
 		tupleElement.clear();	
 
-		if(i < line.length())	
+		if(i < line.size())	
 			++i;
 		else
 			break;
@@ -171,10 +172,10 @@ TuplePattern parsePattern(std::string pattern)
 
 	int i = 0;
 	
-	while(i < pattern.length())
+	while(i < pattern.size())
 	{
 		std::string type;
-		while(pattern[i] != ':' && i < pattern.length())
+		while(pattern[i] != ':' && i < pattern.size())
 		{
 			type.push_back(pattern[i]);
 			++i;
@@ -186,7 +187,7 @@ TuplePattern parsePattern(std::string pattern)
 		}
 
 		std::string oper;
-		while((pattern[i] == ':' || pattern[i] == '=' || pattern[i] == '<' || pattern[i] == '>') && i < pattern.length())
+		while((pattern[i] == ':' || pattern[i] == '=' || pattern[i] == '<' || pattern[i] == '>') && i < pattern.size())
 		{
 			oper.push_back(pattern[i]);
 			++i;
@@ -197,14 +198,14 @@ TuplePattern parsePattern(std::string pattern)
 		{
 			++i;
 		}
-		while(pattern[i] != ',' && i < pattern.length())
+		while(pattern[i] != ',' && i < pattern.size())
 		{
 			cond.push_back(pattern[i]);
 			++i;
 		}
-		if(cond[cond.length() - 1] == '"') 
+		if(cond[cond.size() - 1] == '"') 
 		{
-			cond = cond.substr(0, cond.length() - 1);
+			cond = cond.substr(0, cond.size() - 1);
 		}
 
 		/* Now comma and space */
@@ -589,16 +590,35 @@ Tuple getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperat
 	return tuple;
 }
 
+
+Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction)
+{
+	Tuple tuple;
+	
+	std::chrono::time_point<std::chrono::system_clock> start, end;
+	start = std::chrono::system_clock::now();
+	
+	while((end - start).count() < timeout && tuple.tupleElements.size() == 0)
+	{
+		tuple = getDataFromFile(tuplePattern, timeout, typeOfAction);
+		end = std::chrono::system_clock::now();
+	}
+
+	if(tuple.tupleElements.size() == 0)
+		std::cout << "Tuple not found!" << std::endl;
+
+	return tuple;
+}
+
 Tuple input(TuplePattern tuplePattern, int timeout)
 {
-
-	return getDataFromFile(tuplePattern, timeout, true);
+	return waitingForAction(tuplePattern, timeout, true);
 }
 
 
 Tuple read(TuplePattern tuplePattern, int timeout)
 {
-	return getDataFromFile(tuplePattern, timeout, false);
+	return waitingForAction(tuplePattern, timeout, true);
 }
 
 

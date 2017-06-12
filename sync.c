@@ -18,8 +18,7 @@ struct mutex_data{
 	pthread_mutex_t lock;
 };
 
-void *write_main(void *void_ptr){	
-	int fifo = open(MAIN_FIFO, O_WRONLY);
+void *write_main(void *void_ptr){	int fifo = open(MAIN_FIFO, O_WRONLY);
 	write(fifo, "a", 2);
 }
 void write_secondary(void *void_ptr){
@@ -70,7 +69,7 @@ void *secondary_manager(void *void_ptr){
 	}
 }
 
-int init_linda(){
+int _init_linda(){
 	//Stworz/sprawdz czy istnieje plik FLAG, ten kto go stworzy inicjuje kolejki i pisze do main_fifo
 	int fd = open(FLAG, O_CREAT | O_EXCL | O_WRONLY, "w");
 	pthread_t secondary_manager_thread;	
@@ -107,7 +106,7 @@ void give_file_access(){
 	//TODO zakladamy ze sie udalo
 	pthread_create(&write_main_thread, NULL, write_main, NULL);
 }
-void exit_linda(){
+void _exit_linda(){
 	//TODO troche nie dziala :P
 	get_file_access();
 	if(fork()) exit(0);

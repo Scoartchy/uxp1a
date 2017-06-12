@@ -10,13 +10,59 @@
 #define FLAG "./working_dir/first.flag"
 #define MAIN_FIFO "./working_dir/main.fifo"
 #define SECONDARY_FIFO "./working_dir/secondary.fifo"
-#define LINDA_FILE_ "./working_dir/linda_file"
 #define NO_TRAFFIC_TIMEOUT 5
 
 struct mutex_data{
 	bool spawn_main_writer;
 	pthread_mutex_t lock;
 };
+
+/* Trying open a file */
+void openFileInfo(std::fstream &file, const std::string fileName)
+{	
+	if(file.bad())
+	{
+		std::cout << "ERROR: The file " << fileName.c_str() << " could not be found. Program will be terminated." << std::endl;
+		std::cout << "Press any key to continue..." << std::endl;
+		std::cin.get();
+		exit(1);
+	}
+	else
+	{
+		std::cout << "The file " << fileName.c_str() << " found and opened." << std::endl;
+	}
+}
+
+void readConfig()
+{
+	const std::string CONFIG_FILE = "./working_dir/config";
+
+	std::fstream file;
+	file.open(CONFIG_FILE.c_str(), std::ios::in); 
+	openFileInfo(file, CONFIG_FILE);
+
+	std::cout << "Reading config file." << std::endl;
+
+	/* Reading config and setting variables */
+	std::string line;
+	if(getline(file, line).good()) 
+	{
+		LINDA_FILE = line;
+	}
+	if(getline(file, line).good()) 
+	{
+		TEMP_FILE = line;
+	}
+
+	/* Default paths */
+	if(LINDA_FILE.empty())
+		LINDA_FILE = "./working_dir/linda_file";
+	
+	if(TEMP_FILE.empty())
+		TEMP_FILE = "./working_dir/temp_linda_file"; 
+
+	file.close();
+}
 
 void *write_main(void *void_ptr){	
 	int fifo = open(MAIN_FIFO, O_WRONLY);
@@ -85,7 +131,7 @@ int init_linda(){
 	//TODO zakladamy ze sie udalo bo nie ma czasu na glupoty
 	int status_main = mkfifo(MAIN_FIFO, 0777);
 	int status_secondary = mkfifo(SECONDARY_FIFO, 0777);
-	int file = open(LINDA_FILE_, O_CREAT);
+	int file = open(LINDA_FILE.c_str(), O_CREAT);
 	close(file);
 	close(fd);
 	//

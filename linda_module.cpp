@@ -1,17 +1,12 @@
-#include <fstream>
-#include <iostream>
-#include <string>
 #include <cstring>
 #include <list>
 #include <variant>
-//#include <typeinfo>
 #include <ctime>
 #include <chrono>
 #include <exception>
 
 #include "sync.h"
 
-const std::string CONFIG_FILE = "./working_dir/config";
 std::string LINDA_FILE;
 std::string TEMP_FILE;
 
@@ -52,50 +47,7 @@ public:
 
 /* Functions */
 
-/* Trying open a file */
-void openFileInfo(std::fstream &file, const std::string fileName)
-{	
-	if(file.bad())
-	{
-		std::cout << "ERROR: The file " << fileName.c_str() << " could not be found. Program will be terminated." << std::endl;
-		std::cout << "Press any key to continue..." << std::endl;
-		std::cin.get();
-		exit(1);
-	}
-	else
-	{
-		std::cout << "The file " << fileName.c_str() << " found and opened." << std::endl;
-	}
-}
 
-void readConfig()
-{
-	std::fstream file;
-	file.open(CONFIG_FILE.c_str(), std::ios::in); 
-	openFileInfo(file, CONFIG_FILE);
-
-	std::cout << "Reading config file." << std::endl;
-
-	/* Reading config and setting variables */
-	std::string line;
-	if(getline(file, line).good()) 
-	{
-		LINDA_FILE = line;
-	}
-	if(getline(file, line).good()) 
-	{
-		TEMP_FILE = line;
-	}
-
-	/* Default paths */
-	if(LINDA_FILE.empty())
-		LINDA_FILE = "./working_dir/linda_file";
-	
-	if(TEMP_FILE.empty())
-		TEMP_FILE = "./working_dir/temp_linda_file"; 
-
-	file.close();
-}
 
 /* Converting Tuple to string */
 std::string tupleToString(Tuple tuple)

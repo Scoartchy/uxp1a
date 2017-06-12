@@ -64,13 +64,9 @@ void openFileInfo(std::fstream &file, const std::string fileName)
 	}
 }
 
+
 void output(Tuple tuple)
 {
-	/* Test tuple */
-	tuple.tupleElements.push_back(13);
-	tuple.tupleElements.push_back(0.7f);
-	tuple.tupleElements.push_back("EITI");
-
 	std::fstream file;
 	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out | std::ios::ate); 
 	openFileInfo(file, LINDA_FILE);	
@@ -115,6 +111,63 @@ void output(Tuple tuple)
 }
 
 
+Tuple parseTuple(std::string line)
+{
+	int i = 0;
+	bool isInString = false;
+
+	Tuple tuple;
+	std::string tupleElement;
+		
+	while(i < line.length())
+	{
+		while(line[i] != ' ' || isInString)
+		{
+			if(line[i] == '"' && !isInString)
+			{
+				++i;
+				isInString = true;
+			}
+			else if(line[i] == '"' && isInString)
+			{
+				isInString = false;
+			}
+
+			if(line[i] != '"')
+				tupleElement.push_back(line[i]);
+				
+			++i;
+		}
+
+		std::cout << "Tuple element: " << tupleElement << std::endl;
+
+		try 
+		{
+			int i = stoi(tupleElement);
+			tuple.tupleElements.push_back(i);
+
+		}
+		catch (std::exception& e)
+		{
+			try 
+			{
+				float f = stof(tupleElement);
+				tuple.tupleElements.push_back(f);
+			}
+			catch (std::exception e)
+			{
+				tuple.tupleElements.push_back(tupleElement);
+			}
+		}
+
+		tupleElement.clear();
+		++i;
+	}
+
+	return tuple;
+}
+
+
 TuplePattern parsePattern(std::string pattern)
 {
 	TuplePattern tuplePattern;
@@ -132,7 +185,7 @@ TuplePattern parsePattern(std::string pattern)
 			
 		if(type != "integer" && type != "string" && type != "float")
 		{
-			std::cout << "Error in a tuple pattrern" << std::endl;
+			std::cout << "Error in a tuple pattern" << std::endl;
 		}
 
 		std::string oper;
@@ -460,59 +513,8 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 			++lineNum;
 		}
 		std::cout << "Line: " << line << std::endl;
-
-		int i = 0;
-		bool isInString = false;
-
-		Tuple tuple;
-		std::string tupleElement;
-		
-		while(i < line.length())
-		{
-			while(line[i] != ' ' || isInString)
-			{
-				if(line[i] == '"' && !isInString)
-				{
-					++i;
-					isInString = true;
-				}
-				else if(line[i] == '"' && isInString)
-				{
-					isInString = false;
-				}
-
-				if(line[i] != '"')
-					tupleElement.push_back(line[i]);
-				
-				++i;
-			}
-
-			std::cout << "Tuple element: " << tupleElement << std::endl;
-
-			try 
-			{
-				int i = stoi(tupleElement);
-				tuple.tupleElements.push_back(i);
-
-			}
-			catch (std::exception& e)
-			{
-				try 
-				{
-					float f = stof(tupleElement);
-					tuple.tupleElements.push_back(f);
-
-				}
-				catch (std::exception e)
-				{
-					tuple.tupleElements.push_back(tupleElement);
-				}
-			}
-
-			tupleElement.clear();
-			++i;
-		}
 		 
+		Tuple tuple = parseTuple(line);
 		t = tuple;
 		if (!tupleForInputAlreadyFound) /* We already found pattern - no need for further check. */
 		{
@@ -561,7 +563,7 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 	return false;
 }
 
-void getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperation)
+Tuple getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperation)
 {
 	unsigned long lineNum = 0;
 	Tuple tuple;
@@ -588,17 +590,19 @@ void getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperati
 
 		std::cout << std::endl << "Number of line: " << lineNum << std::endl;
 	}
+
+	return tuple;
 }
 
-void input(TuplePattern tuplePattern, int timeout)
+Tuple input(TuplePattern tuplePattern, int timeout)
 {
-	getDataFromFile(tuplePattern, timeout, true);
+	return getDataFromFile(tuplePattern, timeout, true);
 }
 
 
-void read(TuplePattern tuplePattern, int timeout)
+Tuple read(TuplePattern tuplePattern, int timeout)
 {
-	getDataFromFile(tuplePattern, timeout, false);
+	return getDataFromFile(tuplePattern, timeout, false);
 }
 
 
@@ -606,7 +610,9 @@ int main()
 {
 	std::cout<<"UXP1A"<<std::endl;
 
-	Tuple tuple;
+	std::string test = "13 0.7f \"EITI\" ";
+	
+	Tuple tuple = parseTuple(test);
 	output(tuple);
 
 	std::cout << std::endl;

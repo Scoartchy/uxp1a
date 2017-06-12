@@ -71,35 +71,25 @@ void output(Tuple tuple)
 	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out | std::ios::ate); 
 	openFileInfo(file, LINDA_FILE);	
 
-	short int typeOfElement = 0;
-
 	/* Adding tuple to list of tuples */
 	for(std::variant<int, float, std::string> element : tuple.tupleElements)
 	{
-		/* Try get int */
-		try 
+		/* Check the type of variant variable. */
+		if (std::holds_alternative<int>(element))
 		{
 			std::cout << std::get<int>(element) << " ";
-			++typeOfElement;
-			file << std::get<int>(element) << " ";
-
+		 	file << std::get<int>(element) << " ";
 		}
-		catch (const std::bad_variant_access&) 
+		else if (std::holds_alternative<float>(element))
 		{
-			/* Try get float */
-			try 
-			{
-				std::cout << std::get<float>(element) << " ";
-				++typeOfElement;
-				file << std::get<float>(element) << " ";
-			}
-			catch (const std::bad_variant_access&) /* So it must be string */
-			{
-				std::cout << std::get<std::string>(element) << " ";
-				++typeOfElement;
-				file << "\"" << std::get<std::string>(element) << "\" ";
-			}
-		}		
+			std::cout << std::get<float>(element) << " ";
+			file << std::get<float>(element) << " ";
+		}
+		else if (std::holds_alternative<std::string>(element))
+		{
+			std::cout << std::get<std::string>(element) << " ";
+	 		file << "\"" << std::get<std::string>(element) << "\" ";
+		}	
 	}
 
 	std::cout << "Tuple was added to LINDA_FILE." << std::endl;
@@ -113,6 +103,7 @@ void output(Tuple tuple)
 
 Tuple parseTuple(std::string line)
 {
+
 	int i = 0;
 	bool isInString = false;
 
@@ -121,7 +112,7 @@ Tuple parseTuple(std::string line)
 		
 	while(i < line.length())
 	{
-		while(line[i] != ' ' || isInString)
+		while(isInString || line[i] != ' ')
 		{
 			if(line[i] == '"' && !isInString)
 			{
@@ -136,23 +127,25 @@ Tuple parseTuple(std::string line)
 			if(line[i] != '"')
 				tupleElement.push_back(line[i]);
 				
-			++i;
+			if(i < line.length())
+				++i;
+			else 
+				break;
 		}
 
 		std::cout << "Tuple element: " << tupleElement << std::endl;
 
 		try 
 		{
-			int i = stoi(tupleElement);
-			tuple.tupleElements.push_back(i);
-
+			float f = stof(tupleElement);
+			tuple.tupleElements.push_back(f);
 		}
 		catch (std::exception& e)
 		{
 			try 
 			{
-				float f = stof(tupleElement);
-				tuple.tupleElements.push_back(f);
+				int i = stoi(tupleElement);
+				tuple.tupleElements.push_back(i);
 			}
 			catch (std::exception e)
 			{
@@ -160,8 +153,12 @@ Tuple parseTuple(std::string line)
 			}
 		}
 
-		tupleElement.clear();
-		++i;
+		tupleElement.clear();	
+
+		if(i < line.length())	
+			++i;
+		else
+			break;
 	}
 
 	return tuple;
@@ -439,9 +436,7 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 			std::string operat = (*iterator).oper;
 			const char * tupleString = std::get<std::string>(element).c_str();
 			const char * patternString = (*iterator).cond.c_str();
-			std::cout << "Moj test: \n";
-			std::cout << "+++" << tupleString << "+++\n";
-			std::cout << "+++" << patternString << "+++\n";
+
 			if (strcmp(patternString,"*") == 0) 
 			{
 			}
@@ -596,6 +591,7 @@ Tuple getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperat
 
 Tuple input(TuplePattern tuplePattern, int timeout)
 {
+
 	return getDataFromFile(tuplePattern, timeout, true);
 }
 
@@ -610,7 +606,7 @@ int main()
 {
 	std::cout<<"UXP1A"<<std::endl;
 
-	std::string test = "13 0.7f \"EITI\" ";
+	std::string test = "13 0.7 \"EITI\" ";
 	
 	Tuple tuple = parseTuple(test);
 	output(tuple);

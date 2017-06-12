@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pthread.h>
+#include "sync.h"
 
 #define FLAG "./working_dir/first.flag"
 #define MAIN_FIFO "./working_dir/main.fifo"
@@ -92,7 +93,7 @@ int init_linda(){
 	pthread_t write_main_thread;	
 	pthread_create(&write_main_thread, NULL, write_main, NULL);
 	pthread_create(&secondary_manager_thread, NULL, secondary_manager, NULL);
-	printf("sec_man_thr: %i\n", secondary_manager_thread);
+	//printf("sec_man_thr: %i\n", secondary_manager_thread);
 	return 0;
 }
 

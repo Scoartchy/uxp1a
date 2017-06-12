@@ -7,6 +7,7 @@
 #include <cstring>
 #include <ctime>
 #include <chrono>
+#include "sync.h"
 
 const std::string LINDA_FILE = "test.txt";  /* change to -> "/working_dir/linda_file";*/
 const std::string TEMP_FILE = "temp.txt";   /* similarily as above... */
@@ -68,6 +69,8 @@ void openFileInfo(std::fstream &file, const std::string fileName)
 
 void output(Tuple tuple)
 {
+	get_file_access();
+
 	std::fstream file;
 	file.open(LINDA_FILE.c_str(), std::ios::in | std::ios::out | std::ios::ate); 
 	openFileInfo(file, LINDA_FILE);	
@@ -99,6 +102,8 @@ void output(Tuple tuple)
 	file << '\n';
 	
 	file.close();	
+
+	give_file_access();
 }
 
 
@@ -600,7 +605,9 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 	
 	while((end - start).count() < timeout && tuple.tupleElements.size() == 0)
 	{
+		get_file_access();
 		tuple = getDataFromFile(tuplePattern, timeout, typeOfAction);
+		give_file_access();
 		end = std::chrono::system_clock::now();
 	}
 

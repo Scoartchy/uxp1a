@@ -5,10 +5,10 @@
 #include <iostream>
 #include <fstream>
 
-int init_linda();
+int _init_linda();
 void get_file_access();
 void give_file_access();
-void exit_linda();
+void _exit_linda();
 
 void openFileInfo(std::fstream &file, const std::string fileName);
 void readConfig();

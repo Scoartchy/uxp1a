@@ -112,7 +112,7 @@ Tuple stringToTuple(std::string line)
 				break;
 		}
 
-		std::cout << "Tupl element: " << tupleElement;
+		std::cout << "Tuple element: " << tupleElement;
 
 		try 
 		{	
@@ -179,7 +179,7 @@ void output(const char* tupleString)
 		}	
 	}
 
-	std::cout << "Tuple was added to LINDA_FILE." << std::endl;
+	std::cout << "Tuple was " << std::string(tupleString) << " added to LINDA_FILE." << std::endl;
 
 	/* Go to new line */
 	file << '\n';
@@ -546,7 +546,7 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 
 		if(tupleFinded && !tupleForInputAlreadyFound) /* Second condition is neccessary, so we stop getting tuples, after finding first matching one. */
 		{
-			std::cout << "Tuple was found!" << std::endl;
+			std::cout << "Tuple "<< line << " was found!" << std::endl;
 			if (!deleteAfterFind)
 			{
 				file.close();
@@ -571,6 +571,7 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 	file.close();
 	if (deleteAfterFind) 
 	{	
+		std::cout << "Tuple was " << line << " remove form " << LINDA_FILE << std::endl;
 		tempFile.close();
 		if (tupleForInputAlreadyFound) 
 		{
@@ -640,7 +641,7 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 
 	/* Empty list, so tuple was not found. */
 	if(tuple.tupleElements.size() == 0)
-		std::cout << "Tuple not found!" << std::endl;
+		std::cout << "Tuple was not found!" << std::endl;
 
 	return tuple;
 }

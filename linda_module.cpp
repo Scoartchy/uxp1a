@@ -1,17 +1,19 @@
+#include <fstream>
 #include <iostream>
 #include <string>
-#include <fstream>
+#include <cstring>
 #include <list>
 #include <variant>
-#include <typeinfo>
-#include <cstring>
+//#include <typeinfo>
 #include <ctime>
 #include <chrono>
 #include <exception>
+
 #include "sync.h"
 
-const std::string LINDA_FILE = "./working_dir/linda_file";  /* change to -> "/working_dir/linda_file";*/
-const std::string TEMP_FILE = "./working_dir/temp_linda_file";   /* similarily as above... */
+const std::string CONFIG_FILE = "./working_dir/config";
+std::string LINDA_FILE;
+std::string TEMP_FILE;
 
 
 enum TypeOfElement
@@ -50,8 +52,7 @@ public:
 
 /* Functions */
 
-
-
+/* Trying open a file */
 void openFileInfo(std::fstream &file, const std::string fileName)
 {	
 	if(file.bad())
@@ -67,6 +68,36 @@ void openFileInfo(std::fstream &file, const std::string fileName)
 	}
 }
 
+void readConfig()
+{
+	std::fstream file;
+	file.open(CONFIG_FILE.c_str(), std::ios::in); 
+	openFileInfo(file, CONFIG_FILE);
+
+	std::cout << "Reading config file." << std::endl;
+
+	/* Reading config and setting variables */
+	std::string line;
+	if(getline(file, line).good()) 
+	{
+		LINDA_FILE = line;
+	}
+	if(getline(file, line).good()) 
+	{
+		TEMP_FILE = line;
+	}
+
+	/* Default paths */
+	if(LINDA_FILE.empty())
+		LINDA_FILE = "./working_dir/linda_file";
+	
+	if(TEMP_FILE.empty())
+		TEMP_FILE = "./working_dir/temp_linda_file"; 
+
+	file.close();
+}
+
+/* Converting Tuple to string */
 std::string tupleToString(Tuple tuple)
 {
 	std::string tupleString;
@@ -96,6 +127,8 @@ std::string tupleToString(Tuple tuple)
 	return tupleString;
 }
 
+
+/* Converting string to Tuple */
 Tuple stringToTuple(std::string line)
 {
 	int i = 0;
@@ -205,6 +238,7 @@ void output(const char* tupleString)
 }
 
 
+/* Converting string to TuplePattern */
 TuplePattern strintToTuplePattern(std::string pattern)
 {
 	TuplePattern tuplePattern;
@@ -262,6 +296,7 @@ TuplePattern strintToTuplePattern(std::string pattern)
 
 bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 {
+	/* Tuple and tuplePattern must have the same size.*/
 	if(tuple.tupleElements.size() != tuplePattern.tuplePatternElements.size())
 	{
 		return false;
@@ -270,6 +305,7 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 	std::list<Element>::const_iterator iterator = tuplePattern.tuplePatternElements.begin();
 	int firstNumber, secondNumber;
 
+	/* Comparing all elements of tuple with pattern */
 	for(std::variant<int, float, std::string> element : tuple.tupleElements)
 	{	
 		TypeOfElement typeOfElement;
@@ -584,9 +620,10 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 	if (deleteAfterFind) 
 	{	
 		tempFile.close();
-		if (tupleForInputAlreadyFound)
+		if (tupleForInputAlreadyFound) 
 		{
-			remove(LINDA_FILE.c_str());
+			/* TEMP_FILE is becoming LINDA_FILE */
+			remove(LINDA_FILE.c_str()); 
 			rename(TEMP_FILE.c_str(), LINDA_FILE.c_str());
 			return true;
 		}
@@ -603,6 +640,7 @@ Tuple getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperat
 	unsigned long lineNum = 0;
 	Tuple tuple;
 
+	/* Trying find a tuple */
 	if(findTuple(tuple, tuplePattern, lineNum, isInputOperation))
 	{
 		std::cout << std::endl;
@@ -630,13 +668,16 @@ Tuple getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperat
 }
 
 
+
 Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction)
 {
 	Tuple tuple;
 	
+	/* Timers */
 	std::chrono::time_point<std::chrono::system_clock> start, end;
 	start = std::chrono::system_clock::now();
 	
+	/* Keeping time */
 	while((end - start).count() < timeout && tuple.tupleElements.size() == 0)
 	{
 		get_file_access();
@@ -645,6 +686,7 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 		end = std::chrono::system_clock::now();
 	}
 
+	/* Empty list, so tuple was not found. */
 	if(tuple.tupleElements.size() == 0)
 		std::cout << "Tuple not found!" << std::endl;
 
@@ -670,6 +712,8 @@ const char* read(const char* tuplePatternString, int timeout)
 int main()
 {
 	std::cout<<"UXP1A"<<std::endl;
+
+	readConfig();
 
 	std::string test = "13 0.7 \"EITI\" ";
 	

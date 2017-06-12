@@ -10,7 +10,7 @@
 #define FLAG "./working_dir/first.flag"
 #define MAIN_FIFO "./working_dir/main.fifo"
 #define SECONDARY_FIFO "./working_dir/secondary.fifo"
-#define LINDA_FILE "./working_dir/linda_file"
+#define LINDA_FILE_ "./working_dir/linda_file"
 #define NO_TRAFFIC_TIMEOUT 5
 
 struct mutex_data{
@@ -85,7 +85,7 @@ int init_linda(){
 	//TODO zakladamy ze sie udalo bo nie ma czasu na glupoty
 	int status_main = mkfifo(MAIN_FIFO, 0777);
 	int status_secondary = mkfifo(SECONDARY_FIFO, 0777);
-	int file = open(LINDA_FILE, O_CREAT);
+	int file = open(LINDA_FILE_, O_CREAT);
 	close(file);
 	close(fd);
 	//

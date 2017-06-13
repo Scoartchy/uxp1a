@@ -4,6 +4,7 @@
 #include <ctime>
 #include <chrono>
 #include <exception>
+#include <unistd.h>
 
 #include "sync.h"
 
@@ -146,7 +147,7 @@ Tuple stringToTuple(std::string line)
 }
 
 
-extern "C" void output(const char* tupleString)
+extern "C" void output_linda(const char* tupleString)
 {
 	get_file_access();
 
@@ -633,16 +634,18 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 	Tuple tuple;
 	
 	/* Timers */
-	std::chrono::time_point<std::chrono::system_clock> start, end;
-	start = std::chrono::system_clock::now();
-	
+	std::chrono::milliseconds ms(3000);
+	std::chrono::time_point<std::chrono::system_clock> end;
+    end = std::chrono::system_clock::now() + ms; // this is the end point
+
 	/* Keeping time */
-	while((end - start).count() < timeout && tuple.tupleElements.size() == 0)
-	{
+	while(std::chrono::system_clock::now() < end) // still less than the end?
+    {
 		get_file_access();
 		tuple = getDataFromFile(tuplePattern, timeout, typeOfAction);
 		give_file_access();
 		end = std::chrono::system_clock::now();
+		sleep(1);
 	}
 
 	/* Empty list, so tuple was not found. */
@@ -652,7 +655,7 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 	return tuple;
 }
 
-extern "C" const char* input(const char* tuplePatternString, int timeout)
+extern "C" const char* input_linda(const char* tuplePatternString, int timeout)
 {
 	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, true);
@@ -661,7 +664,7 @@ extern "C" const char* input(const char* tuplePatternString, int timeout)
 }
 
 
-extern "C" const char* read(const char* tuplePatternString, int timeout)
+extern "C" const char* read_linda(const char* tuplePatternString, int timeout)
 {
 	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, false);
@@ -674,7 +677,7 @@ int main()
 {
 	std::cout<<"UXP1A"<<std::endl;
 
-	readConfig();
+	//readConfig();
 
 	std::string test = "13 0.7 \"EITI\" ";
 	
@@ -683,6 +686,7 @@ int main()
 	//tupleToString(tuple);
 
 	std::cout << std::endl;
+
 
 	//Test parse function
 	//TuplePattern tuplePattern = strintToTuplePattern("integer:*, float:>5.5, string:\"abc\""); /*std::string:*,*/

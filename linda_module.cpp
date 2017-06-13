@@ -190,7 +190,7 @@ extern "C" void output_linda(const char* tupleString)
 
 
 /* Converting string to TuplePattern */
-TuplePattern strintToTuplePattern(std::string pattern)
+TuplePattern stringToTuplePattern(std::string pattern)
 {
 	TuplePattern tuplePattern;
 
@@ -640,7 +640,7 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 
     end = std::chrono::system_clock::now() + ms; // this is the end point
 
-    while(std::chrono::system_clock::now() < end) // still less than the end?
+    while(std::chrono::system_clock::now() < end && tuple.tupleElements.empty()) // still less than the end?
     {
     	get_file_access();
 		tuple = getDataFromFile(tuplePattern, timeout, typeOfAction);
@@ -658,7 +658,7 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 
 extern "C" const char* input_linda(const char* tuplePatternString, int timeout)
 {
-	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
+	TuplePattern tuplePattern = stringToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, true);
 	std::cout << tuple.tupleElements.size() << std::endl;
 	return tupleToString(tuple).c_str();
@@ -667,7 +667,7 @@ extern "C" const char* input_linda(const char* tuplePatternString, int timeout)
 
 extern "C" const char* read_linda(const char* tuplePatternString, int timeout)
 {
-	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
+	TuplePattern tuplePattern = stringToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, false);
 	std::cout << tuple.tupleElements.size() << std::endl;
 	return tupleToString(tuple).c_str();

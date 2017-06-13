@@ -678,7 +678,7 @@ int main()
 {
 	std::cout<<"UXP1A"<<std::endl;
 
-	//readConfig();
+	readConfig();
 
 	std::string test = "13 0.7 \"EITI\" ";
 	

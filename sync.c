@@ -56,10 +56,20 @@ void readConfig()
 
 	/* Default paths */
 	if(LINDA_FILE.empty())
+	{
+		std::cout << "linda_file path is not defined, so program uses default path" << std::endl;
 		LINDA_FILE = "./working_dir/linda_file";
+	}
+	else
+		std::cout << "linda_file path is defined in config: " << LINDA_FILE << std::endl;
 	
 	if(TEMP_FILE.empty())
+	{
+		std::cout << "linda_file_temp path is not defined, so program uses default path" << std::endl;
 		TEMP_FILE = "./working_dir/temp_linda_file"; 
+	}
+	else
+		std::cout << "linda_file_temp path is defined in config: " << TEMP_FILE << std::endl;
 
 	file.close();
 }

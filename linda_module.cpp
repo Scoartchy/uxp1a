@@ -148,7 +148,7 @@ Tuple stringToTuple(std::string line)
 }
 
 
-void output(const char* tupleString)
+extern "C" void output(const char* tupleString)
 {
 	get_file_access();
 
@@ -646,7 +646,7 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 	return tuple;
 }
 
-const char* input(const char* tuplePatternString, int timeout)
+extern "C" const char* input(const char* tuplePatternString, int timeout)
 {
 	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, true);
@@ -654,7 +654,7 @@ const char* input(const char* tuplePatternString, int timeout)
 }
 
 
-const char* read(const char* tuplePatternString, int timeout)
+extern "C" const char* read(const char* tuplePatternString, int timeout)
 {
 	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, false);
@@ -690,9 +690,9 @@ int main()
 	return 0;
 }
 
-void init_linda(){
+extern "C" void init_linda(){
 	_init_linda();
 }
-void exit_linda(){
+extern "C" void exit_linda(){
 	_exit_linda();
 }

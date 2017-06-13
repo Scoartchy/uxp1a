@@ -561,7 +561,7 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 		}
 		else
 		{
-			std::cout << "Tuple was not found!" << std::endl;
+			std::cout << "Tuple was not found!(2)" << std::endl;
 			if (deleteAfterFind) /* We must update tempFile for input operation. */
 			{
 				tempFile << line << '\n';

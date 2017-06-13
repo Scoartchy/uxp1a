@@ -72,8 +72,6 @@ std::string tupleToString(Tuple tuple)
 		}
 	}
 
-	tupleString.pop_back();
-
 	std::cout << "Tuple: " << tupleString << std::endl; 
 
 	return tupleString;

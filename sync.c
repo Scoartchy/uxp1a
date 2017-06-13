@@ -119,6 +119,7 @@ void *secondary_manager(void *void_ptr){
 
 int _init_linda(){
 	//Stworz/sprawdz czy istnieje plik FLAG, ten kto go stworzy inicjuje kolejki i pisze do main_fifo
+	readConfig();
 	int fd = open(FLAG, O_CREAT | O_EXCL | O_WRONLY, "w");
 	pthread_t secondary_manager_thread;	
 	if (fd == -1) {

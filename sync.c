@@ -134,24 +134,19 @@ int _init_linda(){
 	pthread_t secondary_manager_thread;	
 	if (fd == -1) {
 		printf("nie jestesmy pierwsi\n");
-		//TODO zamiast sleep zrobic dopoki nie istnieje
 		sleep(1);
 		pthread_create(&secondary_manager_thread, NULL, secondary_manager, NULL);
 		return 1;
 	}
 	printf("jestesmy pierwsi\n");
-	//TODO zakladamy ze sie udalo bo nie ma czasu na glupoty
 	int status_main = mkfifo(MAIN_FIFO, 0777);
 	int status_secondary = mkfifo(SECONDARY_FIFO, 0777);
 	int file = open(LINDA_FILE.c_str(), O_CREAT);
 	close(file);
 	close(fd);
-	//
-	//TODO zakladamy ze sie udalo stworzyc thread, nie ma czasu na glupoty
 	pthread_t write_main_thread;	
 	pthread_create(&write_main_thread, NULL, write_main, NULL);
 	pthread_create(&secondary_manager_thread, NULL, secondary_manager, NULL);
-	//printf("sec_man_thr: %i\n", secondary_manager_thread);
 	return 0;
 }
 
@@ -162,11 +157,9 @@ void get_file_access(){
 }
 void give_file_access(){
 	pthread_t write_main_thread;
-	//TODO zakladamy ze sie udalo
 	pthread_create(&write_main_thread, NULL, write_main, NULL);
 }
 void _exit_linda(){
-	//TODO troche nie dziala :P
 	get_file_access();
 	if(fork()) exit(0);
 	pthread_t no_traffic_timeout_thread;	

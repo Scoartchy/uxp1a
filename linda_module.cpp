@@ -540,11 +540,15 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 		std::cout << "Line: " << line << std::endl;
 		 
 		Tuple tuple = stringToTuple(line);
-		t = tuple;
+
 		if (!tupleForInputAlreadyFound) /* We already found pattern - no need for further check. */
 		{
 			tupleFinded = compareTupleWithTuplePattern(tuple, tuplePattern);
 		}
+		if (tupleFinded)
+		{
+			t = tuple;
+		}		
 
 		if(tupleFinded && !tupleForInputAlreadyFound) /* Second condition is neccessary, so we stop getting tuples, after finding first matching one. */
 		{

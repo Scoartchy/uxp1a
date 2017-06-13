@@ -284,7 +284,7 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 			}
 		}
 
-		std::cout << "Type: " << (*iterator).type << std::endl;
+		std::cout << "Type of pattern: " << (*iterator).type << std::endl;
 		if(typeOfElement == intType && (*iterator).type == "integer")
 		{
 			std::cout << "Oper: " << (*iterator).oper << std::endl;
@@ -504,6 +504,10 @@ bool compareTupleWithTuplePattern(Tuple& tuple, TuplePattern tuplePattern)
 			}
 			++iterator;
 		}
+		else
+		{
+			return false;
+		}
 		
 	}
 
@@ -571,11 +575,11 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 	file.close();
 	if (deleteAfterFind) 
 	{	
-		std::cout << "Tuple was " << line << " remove form " << LINDA_FILE << std::endl;
 		tempFile.close();
 		if (tupleForInputAlreadyFound) 
 		{
 			/* TEMP_FILE is becoming LINDA_FILE */
+			std::cout << "Tuple was " << line << " remove form " << LINDA_FILE << std::endl;
 			remove(LINDA_FILE.c_str()); 
 			rename(TEMP_FILE.c_str(), LINDA_FILE.c_str());
 			return true;

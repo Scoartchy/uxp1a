@@ -634,7 +634,7 @@ Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction
 	Tuple tuple;
 	
 	/* Timers */
-	std::chrono::milliseconds ms(3000);
+	std::chrono::milliseconds ms(timeout * 1000);
 	std::chrono::time_point<std::chrono::system_clock> end;
     end = std::chrono::system_clock::now() + ms; // this is the end point
 

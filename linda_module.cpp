@@ -652,6 +652,7 @@ extern "C" const char* input(const char* tuplePatternString, int timeout)
 {
 	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, true);
+	std::cout << tuple.tupleElements.size() << std::endl;
 	return tupleToString(tuple).c_str();
 }
 
@@ -660,6 +661,7 @@ extern "C" const char* read(const char* tuplePatternString, int timeout)
 {
 	TuplePattern tuplePattern = strintToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, false);
+	std::cout << tuple.tupleElements.size() << std::endl;
 	return tupleToString(tuple).c_str();
 }
 

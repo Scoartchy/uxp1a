@@ -545,10 +545,10 @@ bool findTuple(Tuple& t, TuplePattern tuplePattern, unsigned long& lineNum, bool
 		if (!tupleForInputAlreadyFound) /* We already found pattern - no need for further check. */
 		{
 			tupleFinded = compareTupleWithTuplePattern(tuple, tuplePattern);
-		}
-		if (tupleFinded)
-		{
-			t = tuple;
+			if (tupleFinded)
+			{
+				t = tuple;
+			}
 		}		
 
 		if(tupleFinded && !tupleForInputAlreadyFound) /* Second condition is neccessary, so we stop getting tuples, after finding first matching one. */

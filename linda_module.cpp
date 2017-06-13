@@ -632,21 +632,22 @@ Tuple getDataFromFile(TuplePattern tuplePattern, int timeout, bool isInputOperat
 Tuple waitingForAction(TuplePattern tuplePattern, int timeout, bool typeOfAction)
 {
 	Tuple tuple;
-	
-	/* Timers */
+
+
 	std::chrono::milliseconds ms(timeout * 1000);
+
 	std::chrono::time_point<std::chrono::system_clock> end;
+
     end = std::chrono::system_clock::now() + ms; // this is the end point
 
-	/* Keeping time */
-	while(std::chrono::system_clock::now() < end) // still less than the end?
+    while(std::chrono::system_clock::now() < end) // still less than the end?
     {
-		get_file_access();
+    	get_file_access();
 		tuple = getDataFromFile(tuplePattern, timeout, typeOfAction);
 		give_file_access();
-		end = std::chrono::system_clock::now();
-		sleep(1);
-	}
+        std::cout << "Running" << std::endl;
+        sleep(1);
+    }
 
 	/* Empty list, so tuple was not found. */
 	if(tuple.tupleElements.size() == 0)
@@ -686,6 +687,10 @@ int main()
 	//tupleToString(tuple);
 
 	std::cout << std::endl;
+
+
+
+
 
 
 	//Test parse function

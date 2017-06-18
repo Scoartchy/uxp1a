@@ -86,6 +86,8 @@ void write_secondary(void *void_ptr){
 
 void *no_traffic_timeout(void *void_ptr){
 	char buf[2];
+	printf("Starting sleep\n");
+	fflush(stdout);
 	sleep(NO_TRAFFIC_TIMEOUT);
 	printf("No traffic, terminating linda\n");
 	fflush(stdout);

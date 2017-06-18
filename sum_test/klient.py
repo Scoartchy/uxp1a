@@ -37,9 +37,10 @@ for number_set in sums:
 x= 0 
 while(x!=len(sum_dict)):
     x = x+1
-    tuple_from_linda = input_linda('string:"=", integer:*, integer:*', 10)
-    if(tuple_from_linda != ''):
+    tuple_from_linda = input_linda('string:"=", integer:*, integer:*', 999999)
+    if(tuple_from_linda == ''):
         continue
+
     print "------------------------------------------\ngot:" + tuple_from_linda
     print "sum id: " + tuple_from_linda.split(" ")[1] +" sum = " + tuple_from_linda.split(" ")[2]
     

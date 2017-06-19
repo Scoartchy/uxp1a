@@ -129,7 +129,7 @@ Tuple stringToTuple(std::string line)
 				throw std::exception();
 			}
 			int i = stoi(tupleElement);
-			std::cout << "+++3 " << i << std::string(tupleString) << std::endl;
+			std::cout << "+++3 " << i << std::endl;
 			tuple.tupleElements.push_back(i);
 		}
 		catch (std::exception& e)

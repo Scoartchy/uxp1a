@@ -47,7 +47,15 @@ public:
 
 
 /* Functions */
+inline bool isInteger(const std::string & s)
+{
+   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false ;
 
+   char * p ;
+   strtol(s.c_str(), &p, 10) ;
+
+   return (*p == 0) ;
+}
 
 
 /* Converting Tuple to string */
@@ -115,7 +123,7 @@ Tuple stringToTuple(std::string line)
 
 		try 
 		{	
-			if(tupleElement.find(".") != std::string::npos)
+			if(tupleElement.find(".") != std::string::npos && !isInteger(tupleElement))
 			{
 				throw std::exception();
 			}

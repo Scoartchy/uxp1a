@@ -123,7 +123,7 @@ Tuple stringToTuple(std::string line)
 
 		try 
 		{	
-			if(tupleElement.find(".") != std::string::npos && !isInteger(tupleElement))
+			if(tupleElement.find(".") != std::string::npos || !isInteger(tupleElement))
 			{
 				throw std::exception();
 			}

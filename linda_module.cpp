@@ -661,7 +661,8 @@ extern "C" const char* input_linda(const char* tuplePatternString, int timeout)
 	TuplePattern tuplePattern = stringToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, true);
 	std::cout << tuple.tupleElements.size() << std::endl;
-	return tupleToString(tuple).c_str();
+	std::string* validReturnString = new std::string(tupleToString(tuple));
+	return validReturnString->c_str();
 }
 
 
@@ -670,7 +671,8 @@ extern "C" const char* read_linda(const char* tuplePatternString, int timeout)
 	TuplePattern tuplePattern = stringToTuplePattern(std::string(tuplePatternString));
 	Tuple tuple = waitingForAction(tuplePattern, timeout, false);
 	std::cout << tuple.tupleElements.size() << std::endl;
-	return tupleToString(tuple).c_str();
+	std::string* validReturnString = new std::string(tupleToString(tuple));
+	return validReturnString->c_str();
 }
 
 

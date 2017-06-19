@@ -125,9 +125,11 @@ Tuple stringToTuple(std::string line)
 		{	
 			if(tupleElement.find(".") != std::string::npos || !isInteger(tupleElement))
 			{
+				std::cout << "+++2 " << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << std::endl;
 				throw std::exception();
 			}
 			int i = stoi(tupleElement);
+			std::cout << "+++3 " << i << std::string(tupleString) << std::endl;
 			tuple.tupleElements.push_back(i);
 		}
 		catch (std::exception& e)
@@ -158,7 +160,7 @@ Tuple stringToTuple(std::string line)
 extern "C" void output_linda(const char* tupleString)
 {
 	get_file_access();
-
+	std::cout << "+++1 " << std::string(tupleString) << std::endl;
 	Tuple tuple = stringToTuple(std::string(tupleString));
 
 	std::fstream file;
